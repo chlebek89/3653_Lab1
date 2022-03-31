@@ -21,7 +21,7 @@ wdf<- as.data.frame(weatherJSON)
 View(wdf)
 
 # 3. Napisz funkcję zapisującą porcjami danych plik csv do tabeli w SQLite
-# Mały przykład - autaSmall.csv
+#Utworzenie bazy na podstawie pliku auta2.csv - 3.2GB
 
 install.packages("DBI")
 install.packages("RSQLite")
@@ -60,6 +60,9 @@ readToBase("auta2.csv", con, "auta2", 1000)
 
 #4.Napisz funkcję znajdującą tydzień obserwacji z największą średnią ceną ofert korzystając z zapytania SQL.
 
+library(DBI)
+library(RSQLite)
+
 con <- dbConnect(SQLite(), "auta2.sqlite")
 query <- "SELECT tydzien, avg_week_price 
           FROM 
@@ -72,8 +75,8 @@ query <- "SELECT tydzien, avg_week_price
                         FROM (select tydzien, AVG(cena) as avg_week_price 
                               FROM auta2 GROUP BY tydzien))"
 max_avg_week_price <- dbSendQuery(con, query)
-dbFetch(max_avg_week_price)
-
+result <- dbFetch(max_avg_week_price)
+print(result)
 dbClearResult(res)
 dbDisconnect(con)
 
