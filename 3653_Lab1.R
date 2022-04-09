@@ -81,3 +81,33 @@ dbClearResult(res)
 dbDisconnect(con)
 
 
+#5 Podobnie jak w poprzednim zadaniu napisz funkcję znajdującą tydzień 
+#  obserwacji z największą średnią ceną ofert  tym razem wykorzystując REST api.
+
+library(httr)
+library(jsonlite)
+
+url <- "http://54.37.136.190:8000/week?t="
+weeks_avg_price_df = NULL
+i = 0
+repeat
+{
+  i <- i + 1 
+  page <- i
+  week_url <- paste(url, page, sep="")
+  getWeek <- GET(week_url)
+  getWeek_text <- content(getWeek, "text")
+  getWeek_json <- fromJSON(getWeek_text, flatten = TRUE)
+  getWeek_df <- as.data.frame(getWeek_json)
+  getWeek_avg_price <- mean(getWeek_df$cena, na.rm = TRUE)
+  print(getWeek_avg_price)
+  if(getWeek_avg_price == 0) {
+    break;
+  }
+  weeks_avg_price_df = rbind(weeks_avg_price_df, data.frame(page, getWeek_avg_price))
+}
+
+getWeek_max_avg_price <- subset(weeks_avg_price_df,weeks_avg_price_df$getWeek_avg_price == max(weeks_avg_price_df$getWeek_avg_price))
+View(getWeek_max_avg_price)
+
+write.csv(weeks_avg_price_df,"weeks_avg_price_df.csv", row.names = FALSE)
